@@ -1,2 +1,2 @@
 # Learning-RL
-All my learning on Reinforcement Learning will be put here. 
+All my learnings of RL will be put here. 
