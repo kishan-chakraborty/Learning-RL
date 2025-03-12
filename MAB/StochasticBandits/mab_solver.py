@@ -2,6 +2,7 @@
 Solver for multiarm bandit problem. Using the following methods:
 Greedy
 Epsilon Greedy
+t-epsilon
 UCB
 Optimistic Initialization.
 
@@ -9,18 +10,20 @@ Source:
     Reinforcement learning: An introduction by Sutton and Barto.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from bandit import Bandit
+
 
 class MABSolver:
     """
     MULTI-ARM BANDIT SOLVER
     """
-    def __init__(self,
-                 n_arms:int=10,
-                 n_experiments:int=2000,
-                 n_steps:int=1000)->None:
+
+    def __init__(
+        self, n_arms: int = 10, n_experiments: int = 2000, n_steps: int = 1000
+    ) -> None:
         """
         Args:
             n_arms: No. of bandit arms.
@@ -51,8 +54,7 @@ class MABSolver:
         # initial estimated values.
         self.estimated_values = None
 
-
-    def _initialize(self, initial_estimation: list = None)->None:
+    def _initialize(self, initial_estimation: list = None) -> None:
         """
         Initializing required variables for the solver.
         """
@@ -77,11 +79,9 @@ class MABSolver:
         # initial estimated values.
         self.estimated_values = np.copy(self.initial_estimation)
 
-
-    def calculate_reward(self,
-                        epsilon:float=None,
-                        c:float=None,
-                        step:int=None)->tuple:
+    def calculate_reward(
+        self, epsilon: float = None, c: float = None, step: int = None
+    ) -> tuple:
         """
         Calculate reward for the next time step.
         Args:
@@ -97,8 +97,10 @@ class MABSolver:
                 action = total_action
             else:
                 # Select the action with highest average reward
-                action = np.argmax(self.estimated_values + c * np.sqrt(np.log(step) \
-                                                            / (self.action_counts)))
+                action = np.argmax(
+                    self.estimated_values
+                    + c * np.sqrt(np.log(step) / (self.action_counts))
+                )
         # Epsilon-greedy method action selection
         elif epsilon is not None and np.random.rand() < epsilon:
             action = int(np.random.choice(self.n_arms))
@@ -112,11 +114,13 @@ class MABSolver:
         self.action_counts[action] += 1
         return reward, action
 
-
-    def greedy(self,
-               epsilon: float = None,
-               initial_estimation: list = None,
-               alpha:float=None)->list:
+    def greedy(
+        self,
+        epsilon: float = None,
+        initial_estimation: list = None,
+        alpha: float = None,
+        t_epsilon=False,
+    ) -> list:
         """
         Solving the multi-armed bandit problem using the greedy method.
         Exploitation no exploration unless optimistic initialization is used.
@@ -124,8 +128,9 @@ class MABSolver:
         Args:
             epsilon: Exploration rate.
             initial_estimation: Optimistic initial estimates.
-            alpha: step size in case of Fixed step size. 
+            alpha: step size in case of Fixed step size.
                     If None then incremental implementation is used.
+            t_epsilon: Use t-epsilon method for optimizing the total reward.
 
         Returns:
             list of rewards for each time step averaging over the number of experiments.
@@ -142,28 +147,31 @@ class MABSolver:
                 if epsilon is None:
                     reward, action = self.calculate_reward()
                 else:
-                    reward, action = self.calculate_reward(epsilon=epsilon)
+                    if t_epsilon:
+                        epsilon = epsilon / (np.sqrt(step + 1))
+                        reward, action = self.calculate_reward(epsilon=epsilon)
+                    else:
+                        reward, action = self.calculate_reward(epsilon=epsilon)
 
                 self.rewards[step] = reward  # Storing reward for each time step
 
                 if alpha is None:
                     # Incremental implementation
-                    self.estimated_values[action] += (reward - self.estimated_values[action])\
-                                                     /self.action_counts[action]
+                    self.estimated_values[action] += (
+                        reward - self.estimated_values[action]
+                    ) / self.action_counts[action]
                 else:
                     # Fixed step implementation.
-                    self.estimated_values[action] += (reward - self.estimated_values[action]) \
-                                                    * alpha
+                    self.estimated_values[action] += (
+                        reward - self.estimated_values[action]
+                    ) * alpha
 
             # Sum rewards over all experiments
             total_rewards += self.rewards
         avg_rewards = total_rewards / self.n_experiments
         return avg_rewards
 
-
-    def ucb(self,
-            initial_estimation: list = None,
-            c: float=2.0)->list:
+    def ucb(self, initial_estimation: list = None, c: float = 2.0) -> list:
         """
         Solving the multi-armed bandit problem using the UCB method.
 
@@ -186,8 +194,9 @@ class MABSolver:
                 reward, action = self.calculate_reward(c=c, step=step)
                 self.rewards[step] = reward  # Storing reward for each time step
                 # Incremental implementation
-                self.estimated_values[action] += (reward - self.estimated_values[action]) \
-                                                / self.action_counts[action]
+                self.estimated_values[action] += (
+                    reward - self.estimated_values[action]
+                ) / self.action_counts[action]
 
             # Sum rewards over all experiments
             total_rewards += self.rewards
@@ -196,7 +205,7 @@ class MABSolver:
         return avg_rewards
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     solver = MABSolver()
     ucb_sol = solver.ucb()
     # eps_greedy_sol = solver.greedy(epsilon=0.1)
