@@ -17,7 +17,7 @@ policy_net = DQN(state_dim, action_dim)  # Create a new instance
 # Load the saved weights into this model
 policy_net.load_state_dict(
     torch.load(
-        "/home/kishan/Desktop/Kishan/Projects/Reinforcement Learning/Learning-RL/DeepRLMethods/dqn_cartpole.pth"
+        "/home/kishan/Desktop/Kishan/Projects/Reinforcement Learning/Learning-RL/DeepRLMethods/ddqn_cartpole.pth"
     )
 )
 
