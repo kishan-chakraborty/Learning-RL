@@ -2,3 +2,9 @@ rl_env
 MAB/.venv
 MAB/__pycache__
 MDP/.ipynb_checkpoints
+DeepRLMethods/__pycache__
+DeepRLMethods/.ipynb_checkpoints
+DeepRLMethods/*.pth
+PolicyGradient/__pycache__
+PolicyGradient/*.pth
+.gitignore
