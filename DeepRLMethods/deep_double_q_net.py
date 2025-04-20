@@ -17,9 +17,9 @@ class DQN(nn.Module):
             action_dim: Dimension of the action space.
         """
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, action_dim)  # Output Q-values for all actions
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, action_dim)  # Output Q-values for all actions
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))  # Using ReLU activation function.
@@ -76,12 +76,12 @@ class ReplayBuffer:
 
 def train_dqn(
     env,
-    num_episodes=1500,
+    num_episodes=1000,
     batch_size=64,
-    gamma=0.9,
+    gamma=0.99,
     lr=0.0001,
     epsilon_decay=0.995,
-    min_epsilon=0.01,
+    min_epsilon=0.001,
 ):
     """
     Function to train a DQN agent on a given environment.
@@ -107,7 +107,7 @@ def train_dqn(
 
     optimizer = torch.optim.Adam(q_network.parameters(), lr=lr)
     criterion = nn.MSELoss()
-    replay_buffer = ReplayBuffer(size=1000)
+    replay_buffer = ReplayBuffer(size=10000)
 
     epsilon = 1.0  # Start with full exploration
     # Update target network every 10 episodes (Can be done based on steps also)
